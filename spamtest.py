@@ -1,6 +1,6 @@
 #!/usr/local/bin/python2.7
 """ spamtest.py
-Send eicar file and gtube string to target mailserver to check spamrules.
+Send eicar file and gtube string to target mail server to check spam rules.
 Usage:
     spamtest.py [options] -r <recipient> -s <sender> -d <destmta>
 
@@ -13,11 +13,9 @@ __author__ = 'olivier'
 # import statements
 import logging as log
 import smtplib
-import sys
 
 from email.message import Message
 from smtplib import SMTPException
-from email.mime.text import MIMEText
 
 from docopt import docopt
 
@@ -69,7 +67,7 @@ def main():
     destmta = arguments['<destmta>']
     verbose = arguments['--verbose']
 
-    # set loglevel to verbose if user has chosen -v, --verbose
+    # set log level to verbose if user has chosen -v, --verbose
     if verbose:
         log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
         log.info("Verbose output activated.")
@@ -86,7 +84,6 @@ def main():
     log.info("Sending Gtubestring Mail")
     send_mail(sender, recipient, destmta, subjectspam, GTUBESTR, verbose)
     # send_mail(sender, recipient, destmta, subjectspam, "Testmail", verbose)
-
 
 
 if __name__ == "__main__":
