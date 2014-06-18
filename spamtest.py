@@ -1,8 +1,7 @@
-#!/usr/local/bin/python2.7
 """ spamtest.py
 Send eicar file and gtube string to target mail server to check spam rules.
 Usage:
-    spamtest.py [options] -r <recipient> -s <sender> -d <destmta>
+    spamtest.py [options] -r <recipient> -s <sender> -d <destmta> [options]
 
 Options:
     -v, --verbose       Print verbose messages on cli
@@ -11,13 +10,11 @@ Options:
 __author__ = 'olivier'
 
 # import statements
-import logging as log
-import smtplib
-
+from docopt import docopt
 from email.message import Message
 from smtplib import SMTPException
-
-from docopt import docopt
+import logging as log
+import smtplib
 
 
 def send_mail(sender,
