@@ -19,3 +19,4 @@ Note:
     
     Options:
         -v, --verbose       Print verbose messages on cli
+        -c, --relaycheck    Check if server accepts relay
