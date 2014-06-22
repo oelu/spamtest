@@ -1,10 +1,11 @@
 """ spamtest.py
-Send eicar file and gtube string to target mail server to check spam rules.
+Send EICAR file and GTUBE string to target mail server to check spam rules.
 Usage:
     spamtest.py [options] -r <recipient> -s <sender> -d <destmta> [options]
 
 Options:
     -v, --verbose       Print verbose messages on cli
+    -c, --relaycheck    Check if server accepts a relay to test@test.com
 
 """
 __author__ = 'olivier'
@@ -12,7 +13,8 @@ __author__ = 'olivier'
 # import statements
 from docopt import docopt
 from email.message import Message
-from smtplib import SMTPException
+from smtplib import SMTPConnectError
+from smtplib import SMTPRecipientsRefused
 import logging as log
 import smtplib
 
@@ -24,7 +26,7 @@ def send_mail(sender,
               body,
               verbose):
     """
-    sends e-mail to specific server
+    Sends e-mail to specific server.
     """
     msg = Message()
     msg['From'] = sender
@@ -39,14 +41,15 @@ def send_mail(sender,
             server.set_debuglevel(1)
         server.sendmail(sender, recipient, msg.as_string())
         print "Successfully sent email"
-    except SMTPException as smtpex:
+    # if no success code an
+    except SMTPConnectError as smtpconnerr:
         log.error("unable to send mail")
-        log.error(smtpex)
+        log.error(smtpconnerr)
 
 
 def main():
     """
-    main function
+    Main function
     """
     # generic virus test string
     EICARSTR = ('X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*]')
@@ -63,6 +66,7 @@ def main():
     recipient = arguments['<recipient>']
     destmta = arguments['<destmta>']
     verbose = arguments['--verbose']
+    relaycheck = arguments['--relaycheck']
 
     # set log level to verbose if user has chosen -v, --verbose
     if verbose:
@@ -80,7 +84,18 @@ def main():
     send_mail(sender, recipient, destmta, subjectvirus, EICARSTR, verbose)
     log.info("Sending Gtubestring Mail")
     send_mail(sender, recipient, destmta, subjectspam, GTUBESTR, verbose)
-    # send_mail(sender, recipient, destmta, subjectspam, "Testmail", verbose)
+    # if user has specified --relaycheck
+    if relaycheck:
+        log.info("Trying Relay:")
+        recipient = "test@test.com"
+        # should fail with SMTPREcipientsRefused
+        try:
+            send_mail(sender, recipient, destmta,
+                      subjectspam, GTUBESTR, verbose)
+        # test is OK if server refuses relay
+        except SMTPRecipientsRefused as rcptrefused:
+            log.info("Relaying not accepted: OK")
+            log.info(rcptrefused)
 
 
 if __name__ == "__main__":
